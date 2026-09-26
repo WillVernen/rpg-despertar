@@ -67,6 +67,10 @@ Durante uma batalha, escolha uma das opcoes exibidas no terminal:
 - continuar a historia depois do primeiro combate;
 - adicionar novas areas, inimigos, equipamentos e escolhas.
 
+## Autor
+
+Will Vernen
+
 ## Licenca
 
 Este projeto e distribuido sob a licenca MIT. Consulte o arquivo `LICENSE` para os termos completos.
