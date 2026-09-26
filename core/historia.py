@@ -42,7 +42,7 @@ def introducao():
 
     time.sleep(1)
     escrever_texto(
-        f"\n{nome_jogador}... Esse é o meu nome. Mas quem é Elara? O que aconteceu comigo?"
+        f"\n'{nome_jogador}... Esse é o meu nome. Mas quem é Elara? O que aconteceu comigo?'"
     )
     time.sleep(1)
     escrever_texto(
