@@ -67,14 +67,24 @@ def iniciar_combate(heroi, inimigo, batalha_tutorial=False):
                 return "fuga"
 
         elif escolha == "3":
-            # Como ele ainda não pegou a poção, o inventário está vazio.
-            if len(heroi.inventario) == 0:
-                escrever_texto(
-                    "Você tateia seus bolsos... você não tem nenhum item para usar no momento!"
-                )
+            if not heroi.mostrar_inventario():
+                input("\n(Pressione ENTER para voltar à batalha)")
+                continue  # Não gasta o turno se estiver vazio
+
+            escolha_item = input("\nEscolha o número do item (ou '0' para cancelar): ")
+
+            if escolha_item.isdigit() and int(escolha_item) > 0:
+                indice_item = int(escolha_item) - 1
+                if 0 <= indice_item < len(heroi.inventario):
+                    mensagem = heroi.usar_item(indice_item)
+                    escrever_texto(mensagem)
+                    turno_gasto = True
+                else:
+                    print("Opção de item inválida.")
+                    continue
             else:
-                escrever_texto("Sistema de uso de itens será implementado em breve.")
-            turno_gasto = True
+                print("Ação cancelada.")
+                continue
 
         elif escolha == "4":
             print("\n--- SEU STATUS ---")

@@ -4,6 +4,7 @@ from core.historia import introducao
 from core.entidades import Jogador, Inimigo
 from core.combate import iniciar_combate
 from core.utils import escrever_texto
+from core.exploracao import iniciar_exploracao  # <-- Nova importação
 
 
 def iniciar_jogo():
@@ -61,7 +62,8 @@ def iniciar_jogo():
                 print("\nVocê adquiriu [1 Poção de Cura] e [15 Peças de Cobre]!")
                 input("\n(Pressione ENTER para continuar a exploração...)")
 
-                # O jogo continuará a partir daqui...
+                # --- CHAMA O NOVO MOTOR DE EXPLORAÇÃO ---
+                iniciar_exploracao(heroi)
 
             elif resultado == "derrota":
                 print("\n====================")
