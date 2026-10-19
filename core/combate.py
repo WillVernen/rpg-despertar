@@ -91,17 +91,26 @@ def iniciar_combate(heroi, inimigo, batalha_tutorial=False):
             print(f"Nome: {heroi.nome} | Level: {heroi.level}")
             print(f"HP: {heroi.vida}/{heroi.vida_maxima}")
             print(
-                f"Ataque Total: {heroi.calcular_ataque()} | Defesa: {heroi.defesa_base}"
+                f"Ataque Total: {heroi.calcular_ataque()} | Defesa: {heroi.calcular_defesa()}"
             )
-            print(
-                f"Arma Equipada: {heroi.arma_equipada['nome'] if heroi.arma_equipada else 'Desarmado'}"
+
+            arma_nome = (
+                heroi.arma_equipada["nome"] if heroi.arma_equipada else "Nenhuma"
             )
+            armadura_nome = (
+                heroi.armadura_equipada["nome"]
+                if heroi.armadura_equipada
+                else "Nenhuma"
+            )
+            print(f"Arma Equipada: {arma_nome}")
+            print(f"Armadura Equipada: {armadura_nome}")
+
             print(
                 f"Dinheiro: {heroi.dinheiro['cobre']} PC | {heroi.dinheiro['prata']} PP | {heroi.dinheiro['ouro']} PO | {heroi.dinheiro['platina']} PL"
             )
             print(f"Total estimado: {heroi.total_em_ouro():.2f} PO")
             input("\n(Pressione ENTER para voltar à batalha)")
-            continue  # O 'continue' reinicia o loop, impedindo que o inimigo ataque (Ação Livre)
+            continue
 
         elif escolha == "5":
             # Revela os status do inimigo

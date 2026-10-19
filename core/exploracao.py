@@ -1,14 +1,15 @@
 import time
 from core.utils import escrever_texto
 from core.menu import limpar_tela
+from core.save import salvar_jogo
+from core.loja import mercador_floresta
 
 # --- NOVAS IMPORTAÇÕES PARA COMBATE NA EXPLORAÇÃO ---
 from core.entidades import Inimigo
 from core.combate import iniciar_combate
 
 
-def menu_personagem_livre(heroi):
-    """Um submenu para o jogador gerenciar inventário e status fora de combate."""
+def menu_personagem_livre(heroi, sala_atual):
     while True:
         limpar_tela()
         print("\n" + "=" * 45)
@@ -16,10 +17,11 @@ def menu_personagem_livre(heroi):
         print("=" * 45)
         print("1. Abrir Inventário (Usar Item)")
         print("2. Verificar Status")
-        print("3. Voltar à exploração")
+        print("3. Salvar Jogo")
+        print("4. Voltar à exploração")
         print("=" * 45)
 
-        escolha = input("\nEscolha uma opção (1-3): ")
+        escolha = input("\nEscolha uma opção (1-4): ")
 
         if escolha == "1":
             limpar_tela()
@@ -40,12 +42,23 @@ def menu_personagem_livre(heroi):
             print("\n--- SEU STATUS ---")
             print(f"Nome: {heroi.nome} | Level: {heroi.level}")
             print(f"HP: {heroi.vida}/{heroi.vida_maxima}")
+            # Correção: Agora usa calcular_defesa()
             print(
-                f"Ataque Total: {heroi.calcular_ataque()} | Defesa: {heroi.defesa_base}"
+                f"Ataque Total: {heroi.calcular_ataque()} | Defesa: {heroi.calcular_defesa()}"
             )
-            print(
-                f"Arma Equipada: {heroi.arma_equipada['nome'] if heroi.arma_equipada else 'Desarmado'}"
+
+            # Melhoria: Mostra arma e armadura
+            arma_nome = (
+                heroi.arma_equipada["nome"] if heroi.arma_equipada else "Nenhuma"
             )
+            armadura_nome = (
+                heroi.armadura_equipada["nome"]
+                if heroi.armadura_equipada
+                else "Nenhuma"
+            )
+            print(f"Arma Equipada: {arma_nome}")
+            print(f"Armadura Equipada: {armadura_nome}")
+
             print(
                 f"Dinheiro: {heroi.dinheiro['cobre']} PC | {heroi.dinheiro['prata']} PP | {heroi.dinheiro['ouro']} PO | {heroi.dinheiro['platina']} PL"
             )
@@ -53,6 +66,13 @@ def menu_personagem_livre(heroi):
             input("\n(Pressione ENTER para voltar)")
 
         elif escolha == "3":
+            limpar_tela()
+            escrever_texto("Salvando o jogo...")
+            salvar_jogo(heroi, sala_atual)
+            print("\n[SISTEMA]: Jogo salvo com sucesso!")
+            input("\n(Pressione ENTER para voltar)")
+
+        elif escolha == "4":
             break
 
 
@@ -125,7 +145,7 @@ def cena_bifurcacao(heroi):
             input("\n(Pressione ENTER para voltar)")
 
         elif escolha == "4":
-            menu_personagem_livre(heroi)
+            menu_personagem_livre(heroi, "bifurcacao")
 
         else:
             print("\nOpção inválida. Tente novamente.")
@@ -211,7 +231,7 @@ def cena_porta_madeira(heroi):
             return "bifurcacao"  # Retorna para a sala anterior!
 
         elif escolha == "4":
-            menu_personagem_livre(heroi)
+            menu_personagem_livre(heroi, "porta_madeira")
 
         else:
             print("\nOpção inválida ou já realizada.")
@@ -398,7 +418,7 @@ def cena_enigma_porta(heroi):
             input("\n(Pressione ENTER para voltar)")
 
         elif escolha == "4":
-            menu_personagem_livre(heroi)
+            menu_personagem_livre(heroi, "enigma_porta")
 
         else:
             print("\nOpção inválida.")
@@ -425,17 +445,115 @@ def cena_superficie(heroi):
     escrever_texto(f"\nParabéns, {heroi.nome}! Você sobreviveu à masmorra inicial.")
     escrever_texto("Mas a verdadeira jornada por respostas acabou de começar...")
     print("\n" + "=" * 45)
-    input("\n[ FIM DO CAPÍTULO 1 - Pressione ENTER para voltar ao menu ]")
+    input("\n[ FIM DO PRÓLOGO - Pressione ENTER para voltar ao menu ]")
 
     # Retorna o status de fim de jogo para encerrar o loop pacificamente
     return "fim_de_jogo"
 
 
-def iniciar_exploracao(heroi):
-    """
-    O Motor Principal do Jogo. Ele gerencia as transições de tela.
-    """
-    sala_atual = "bifurcacao"  # O jogador começa aqui após o primeiro boss
+def cena_acampamento(heroi):
+    while True:
+        limpar_tela()
+        print("\n" + "=" * 45)
+        print("              FOGO DE ACAMPAMENTO              ")
+        print("=" * 45)
+        print(f" {heroi.nome}: {heroi.vida}/{heroi.vida_maxima} HP")
+        print("=" * 45)
+        print("As chamas estalam suavemente, oferecendo um breve alívio contra o frio.")
+        print("A luz afasta as sombras da floresta. Este é um local seguro.")
+        print("=" * 45)
+
+        print("1. Descansar junto ao fogo (Recupera todo o HP)")
+        print("2. Menu do Personagem (Salvar Jogo)")
+        print("3. Retornar à trilha principal")
+        print("=" * 45)
+
+        escolha = input("\nO que você faz?: ")
+
+        if escolha == "1":
+            limpar_tela()
+            if heroi.vida == heroi.vida_maxima:
+                escrever_texto(
+                    "Você já está totalmente descansado. Suas feridas estão curadas."
+                )
+            else:
+                escrever_texto(
+                    "Você se deita perto das chamas, fecha os olhos e dorme um sono sem sonhos..."
+                )
+                time.sleep(3)
+                heroi.vida = heroi.vida_maxima
+                escrever_texto(
+                    "\nVocê acordou revigorado! Seu HP foi totalmente restaurado."
+                )
+            input("\n(Pressione ENTER para continuar)")
+
+        elif escolha == "2":
+            # Passamos a string 'acampamento' para o Save funcionar corretamente aqui!
+            menu_personagem_livre(heroi, "acampamento")
+
+        elif escolha == "3":
+            limpar_tela()
+            escrever_texto(
+                "Você apaga as brasas com um pouco de terra e volta para a escuridão da floresta."
+            )
+            time.sleep(3)
+            return "floresta_inicio"
+
+        else:
+            print("\nOpção inválida.")
+            time.sleep(2)
+
+
+def cena_floresta_inicio(heroi):
+    while True:
+        limpar_tela()
+        print("\n" + "=" * 45)
+        print("               A FLORESTA OBSCURA              ")
+        print("=" * 45)
+        print(
+            "O vento assobia entre os pinheiros altos. O Farol ilumina o céu distante."
+        )
+        print("A trilha se divide. De um lado, você vê a fumaça de um acampamento.")
+        print("Do outro, a figura encurvada de um mercador te observa.")
+        print("=" * 45)
+
+        print("1. Aproximar-se do Mercador Errante")
+        print("2. Ir para o Fogo de Acampamento (Descansar e Salvar)")
+        print("3. Seguir a trilha em direção ao Farol (Avançar na história)")
+        print("4. Menu do Personagem")
+        print("=" * 45)
+
+        escolha = input("\nO que você faz?: ")
+
+        if escolha == "1":
+            mercador_floresta(heroi)
+
+        elif escolha == "2":
+            limpar_tela()
+            escrever_texto(
+                "Você caminha em direção à fumaça e encontra uma pequena clareira..."
+            )
+            time.sleep(1)
+            return "acampamento"  # Envia o jogador para a nova cena
+
+        elif escolha == "3":
+            limpar_tela()
+            escrever_texto(
+                "Você aperta o passo pela trilha de terra escura, entrando na parte densa da floresta..."
+            )
+            input("\n[Fim da Atualização - Pressione ENTER para voltar]")
+            return "fim_de_jogo"
+
+        elif escolha == "4":
+            menu_personagem_livre(heroi, "floresta_inicio")
+
+        else:
+            print("\nOpção inválida.")
+            time.sleep(1)
+
+
+def iniciar_exploracao(heroi, sala_inicial="bifurcacao"):
+    sala_atual = sala_inicial
 
     while heroi.esta_vivo():
         if sala_atual == "bifurcacao":
@@ -452,10 +570,18 @@ def iniciar_exploracao(heroi):
 
         elif sala_atual == "enigma_porta":
             sala_atual = cena_enigma_porta(heroi)
+            # Ao sair do enigma (superficie), o jogo nos manda para cena_floresta_inicio
 
         elif sala_atual == "superficie":
             sala_atual = cena_superficie(heroi)
+            sala_atual = "floresta_inicio"
 
-        # Se a função retornar derrota (morreu no monstro) ou fim do jogo (venceu a demo)
+        elif sala_atual == "floresta_inicio":
+            sala_atual = cena_floresta_inicio(heroi)
+
+        # NOVO: Conexão para a máquina de estados reconhecer o acampamento
+        elif sala_atual == "acampamento":
+            sala_atual = cena_acampamento(heroi)
+
         elif sala_atual == "derrota" or sala_atual == "fim_de_jogo":
             break

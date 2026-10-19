@@ -4,7 +4,8 @@ from core.historia import introducao
 from core.entidades import Jogador, Inimigo
 from core.combate import iniciar_combate
 from core.utils import escrever_texto
-from core.exploracao import iniciar_exploracao  # <-- Nova importação
+from core.exploracao import iniciar_exploracao
+from core.save import carregar_jogo
 
 
 def iniciar_jogo():
@@ -73,8 +74,21 @@ def iniciar_jogo():
 
         elif estado_atual == "carregar_jogo":
             limpar_tela()
-            print("Sistema de Save/Load será implementado em breve.")
-            input("\n(Pressione ENTER para voltar ao menu por enquanto)")
+            print("Procurando arquivos de save...")
+            heroi_salvo, sala_salva = carregar_jogo()
+
+            if heroi_salvo:
+                print(f"\nSave encontrado! Bem-vindo de volta, {heroi_salvo.nome}.")
+                print(
+                    f"Status: Nível {heroi_salvo.level} | HP: {heroi_salvo.vida}/{heroi_salvo.vida_maxima}"
+                )
+                input("\n(Pressione ENTER para continuar sua jornada...)")
+
+                # Inicia a exploração passando o herói carregado e a sala em que ele parou
+                iniciar_exploracao(heroi_salvo, sala_inicial=sala_salva)
+            else:
+                print("\nNenhum jogo salvo foi encontrado.")
+                input("\n(Pressione ENTER para voltar ao menu)")
 
         elif estado_atual == "sair":
             limpar_tela()

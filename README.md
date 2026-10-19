@@ -1,25 +1,16 @@
 # O Despertar
 
-**O Despertar** é um RPG de texto em desenvolvimento, criado em Python. O jogador acorda sem memória em uma masmorra, encontra um bilhete assinado por Elara e parte em busca do Farol.
+**O Despertar** é um RPG de texto em desenvolvimento, criado em Python. Esta documentação apresenta os aspectos técnicos e os recursos do jogo sem revelar detalhes da aventura.
 
-## Estado atual
+## Recursos disponíveis
 
-O jogo já conta com:
-
-- Menu principal com opções de novo jogo, carregar jogo e sair.
-- Introdução narrativa com nome personalizado para o personagem.
-- Combate por turnos, com ataques, defesa, análise de inimigos e consulta de status.
-- Opção de fugir em combates que permitem escapar; batalhas de história podem bloquear a fuga.
-- Inventário com uso de itens de cura durante o combate ou na exploração.
-- Personagem com pontos de vida, ataque, defesa, arma equipada e dinheiro.
-- Sistema de moedas de cobre, prata, ouro e platina.
-- Exploração de uma masmorra com salas conectadas e escolhas de caminho.
-- Objetos e pistas opcionais, como a estátua do corvo, o anel misterioso e o diário dos guardas.
-- Inimigos como o Esqueleto e a Aberração do Lodo.
-- Enigmas e itens-chave, incluindo o Olho de Safira e o portão dos Observadores.
-- Primeiro capítulo concluído com a saída da masmorra e a chegada à superfície.
-
-> **Observação:** as opções de carregar jogo já aparecem no menu, mas o sistema de salvamento ainda não foi implementado.
+- Menu principal para iniciar uma partida, carregar um jogo salvo ou sair.
+- Combate por turnos com ataque, fuga quando permitida, uso de itens, consulta de status e análise de oponentes.
+- Personagem com pontos de vida, ataque, defesa, equipamento, inventário e moedas.
+- Itens de cura utilizáveis durante a exploração e os combates.
+- Exploração com salas conectadas, escolhas de caminho e eventos opcionais.
+- Sistema de loja para comprar itens e equipamentos e negociar itens do inventário.
+- Salvamento e carregamento local do progresso, incluindo os dados do personagem e a posição atual.
 
 ## Como executar
 
@@ -37,7 +28,7 @@ No Windows, também é possível usar:
 py main.py
 ```
 
-O jogo é executado no terminal e apresenta as instruções de cada ação na tela.
+O jogo é executado no terminal e apresenta as instruções de cada ação na tela. Os dados salvos são armazenados localmente em `savegame.json`, criado ao salvar a partida.
 
 ## Estrutura do projeto
 
@@ -47,27 +38,27 @@ O jogo é executado no terminal e apresenta as instruções de cada ação na te
 |-- core/
 |   |-- combate.py       # Combate por turnos
 |   |-- entidades.py     # Personagens, atributos, inventário e dinheiro
-|   |-- exploracao.py    # Salas, escolhas e progressão do capítulo
+|   |-- exploracao.py    # Exploração, escolhas e progressão
 |   |-- historia.py      # Introdução narrativa
+|   |-- loja.py          # Compras e negociações
 |   |-- menu.py          # Menu principal e limpeza da tela
+|   |-- save.py          # Salvamento e carregamento local
 |   `-- utils.py         # Exibição gradual de texto
+|-- .gitignore           # Arquivos locais e temporários ignorados pelo Git
 |-- LICENSE              # Licença MIT
 `-- README.md            # Documentação do projeto
 ```
 
-## Ideias para o futuro
+## Próximas melhorias
 
-Estas são possibilidades para versões futuras, não funcionalidades já disponíveis:
+Possíveis evoluções para versões futuras:
 
-- Implementar salvamento e carregamento da campanha.
-- Continuar a história após o primeiro capítulo, com novas áreas, personagens, inimigos e missões.
-- Criar mais escolhas com consequências e diferentes caminhos ou finais.
-- Expandir o inventário com equipamentos, consumíveis, melhorias e gerenciamento de itens.
-- Adicionar progressão de nível, atributos, habilidades e novas opções de combate.
-- Incluir lojas, recompensas e mais usos para o sistema de moedas.
-- Adicionar efeitos sonoros, música e ilustrações para enriquecer a experiência.
-- Disponibilizar o jogo para jogar diretamente no navegador, adaptando a interface e a execução para a web.
-- Criar testes automatizados para os sistemas de combate, inventário, exploração e salvamento.
+- Expandir os sistemas de combate, equipamentos e progressão de personagem.
+- Adicionar mais opções e consequências às escolhas de exploração.
+- Ampliar os recursos de inventário, lojas e gerenciamento de itens.
+- Criar testes automatizados para os sistemas do jogo.
+- Adicionar recursos de áudio e elementos visuais.
+- Adaptar a interface para disponibilizar o jogo em outras plataformas.
 
 ## Autor
 
