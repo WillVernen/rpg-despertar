@@ -5,11 +5,12 @@
 ## Recursos disponíveis
 
 - Menu principal para iniciar uma partida, carregar um jogo salvo ou sair.
-- Combate por turnos com ataque, fuga quando permitida, uso de itens, consulta de status e análise de oponentes.
-- Personagem com pontos de vida, ataque, defesa, equipamento, inventário e moedas.
-- Progressão por experiência: derrotar inimigos concede XP e pode aumentar o nível, os atributos e os pontos de habilidade.
+- Combate por turnos com ataques, habilidades, magia, fuga quando permitida, uso de itens, consulta de status e análise de oponentes.
+- Personagem com pontos de vida e mana, ataque, defesa, equipamento, inventário e moedas.
+- Progressão por experiência: derrotar inimigos concede XP e pode aumentar o nível, os atributos, a mana máxima e os pontos de habilidade.
+- Árvore de habilidades para aprender técnicas físicas, mágicas e de cura usando pontos de habilidade e mana.
 - Itens de cura utilizáveis durante a exploração e os combates.
-- Exploração com caminhos alternativos, eventos, masmorra, floresta, acampamento seguro e mercador.
+- Exploração com caminhos alternativos, eventos, masmorra, floresta, acampamento seguro que restaura vida e mana, e mercador.
 - Encontros com furtividade, emboscadas, combate e chance de fuga.
 - Sistema de loja para comprar itens e equipamentos e negociar itens do inventário.
 - Salvamento e carregamento local do progresso, incluindo dados do personagem, progressão e posição atual.
@@ -41,6 +42,7 @@ O jogo é executado no terminal e apresenta as instruções de cada ação na te
 |   |-- combate.py       # Combate por turnos
 |   |-- entidades.py     # Personagens, atributos, inventário e dinheiro
 |   |-- exploracao.py    # Exploração, escolhas e progressão
+|   |-- habilidades.py   # Árvore e catálogo de habilidades
 |   |-- historia.py      # Introdução narrativa
 |   |-- loja.py          # Compras e negociações
 |   |-- menu.py          # Menu principal e limpeza da tela

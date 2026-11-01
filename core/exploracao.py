@@ -4,6 +4,7 @@ from core.utils import escrever_texto
 from core.menu import limpar_tela
 from core.save import salvar_jogo
 from core.loja import mercador_floresta
+from core.habilidades import menu_arvore_habilidades
 
 # --- NOVAS IMPORTAÇÕES PARA COMBATE NA EXPLORAÇÃO ---
 from core.entidades import Inimigo
@@ -18,11 +19,12 @@ def menu_personagem_livre(heroi, sala_atual):
         print("=" * 45)
         print("1. Abrir Inventário (Usar Item)")
         print("2. Verificar Status")
-        print("3. Salvar Jogo")
-        print("4. Voltar à exploração")
+        print("3. Árvore de Habilidades")
+        print("4. Salvar Jogo")
+        print("5. Voltar à exploração")
         print("=" * 45)
 
-        escolha = input("\nEscolha uma opção (1-4): ")
+        escolha = input("\nEscolha uma opção (1-5): ")
 
         if escolha == "1":
             limpar_tela()
@@ -71,12 +73,16 @@ def menu_personagem_livre(heroi, sala_atual):
 
         elif escolha == "3":
             limpar_tela()
+            menu_arvore_habilidades(heroi)
+
+        elif escolha == "4":
+            limpar_tela()
             escrever_texto("Salvando o jogo...")
             salvar_jogo(heroi, sala_atual)
             print("\nJogo salvo com sucesso!")
             input("\n(Pressione ENTER para voltar)")
 
-        elif escolha == "4":
+        elif escolha == "5":
             break
 
 
@@ -476,7 +482,7 @@ def cena_acampamento(heroi):
         print("A luz afasta as sombras da floresta. Este é um local seguro.")
         print("=" * 45)
 
-        print("1. Descansar junto ao fogo (Recupera todo o HP)")
+        print("1. Descansar junto ao fogo (Recupera todo o HP/MP)")
         print("2. Menu do Personagem (Salvar Jogo)")
         print("3. Retornar à trilha principal")
         print("=" * 45)
@@ -485,7 +491,7 @@ def cena_acampamento(heroi):
 
         if escolha == "1":
             limpar_tela()
-            if heroi.vida == heroi.vida_maxima:
+            if heroi.vida == heroi.vida_maxima and heroi.mana == heroi.mana_maxima:
                 escrever_texto(
                     "Você já está totalmente descansado. Suas feridas estão curadas."
                 )
@@ -495,8 +501,9 @@ def cena_acampamento(heroi):
                 )
                 time.sleep(3)
                 heroi.vida = heroi.vida_maxima
+                heroi.mana = heroi.mana_maxima
                 escrever_texto(
-                    "\nVocê acordou revigorado! Seu HP foi totalmente restaurado."
+                    "\nVocê acordou revigorado! Seu HP e MP foram totalmente restaurados."
                 )
             input("\n(Pressione ENTER para continuar)")
 

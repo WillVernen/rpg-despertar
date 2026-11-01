@@ -1,7 +1,8 @@
 import time
-import random  # <-- NOVA IMPORTAÇÃO
+import random
 from core.utils import escrever_texto
 from core.menu import limpar_tela
+from core.habilidades import CATALOGO_HABILIDADES  # <-- NOVA IMPORTAÇÃO
 
 
 def iniciar_combate(heroi, inimigo, batalha_tutorial=False, emboscada=False):
@@ -9,7 +10,6 @@ def iniciar_combate(heroi, inimigo, batalha_tutorial=False, emboscada=False):
 
     nome_inimigo_display = inimigo.nome if inimigo.analisado else "Figura Sombria"
 
-    # NOVO: Lógica de Ataque Surpresa
     if emboscada:
         escrever_texto(
             f"Você salta das sombras e embosca o(a) {nome_inimigo_display}!", 0.03
@@ -30,17 +30,19 @@ def iniciar_combate(heroi, inimigo, batalha_tutorial=False, emboscada=False):
             0.03,
         )
 
-    turno = 1  # Inicializador do contador de turnos
+    turno = 1
 
     while heroi.esta_vivo() and inimigo.esta_vivo():
-        # Atualizamos o nome no caso de ter sido analisado no turno anterior
         nome_inimigo_display = inimigo.nome if inimigo.analisado else "Figura Sombria"
 
         print("\n" + "=" * 45)
         print(f"                  TURNO {turno}                  ")
         print("=" * 45)
-        # O HP do herói agora é sempre visível
-        print(f" {heroi.nome}: {heroi.vida}/{heroi.vida_maxima} HP")
+
+        # O HP e MP do herói agora são visíveis
+        print(
+            f" {heroi.nome}: {heroi.vida}/{heroi.vida_maxima} HP | {heroi.mana}/{heroi.mana_maxima} MP"
+        )
 
         if inimigo.analisado:
             print(f" {inimigo.nome}: {inimigo.vida}/{inimigo.vida_maxima} HP")
@@ -49,16 +51,17 @@ def iniciar_combate(heroi, inimigo, batalha_tutorial=False, emboscada=False):
 
         print("=" * 45)
         print("1. Atacar")
-        print("2. Fugir")
-        print("3. Usar Item")
-        print("4. Verificar Status (Ação Livre)")
-        print("5. Analisar Inimigo (Ação Livre)")
+        print("2. Habilidade / Magia")  # <-- NOVA OPÇÃO
+        print("3. Fugir")
+        print("4. Usar Item")
+        print("5. Verificar Status (Ação Livre)")
+        print("6. Analisar Inimigo (Ação Livre)")
         print("=" * 45)
 
-        escolha = input("\nEscolha sua ação (1-5): ")
+        escolha = input("\nEscolha sua ação (1-6): ")
         limpar_tela()
 
-        turno_gasto = False  # Variável de controle para saber se o inimigo vai atacar
+        turno_gasto = False
 
         if escolha == "1":
             dano_heroi = heroi.calcular_ataque()
@@ -71,7 +74,74 @@ def iniciar_combate(heroi, inimigo, batalha_tutorial=False, emboscada=False):
             )
             turno_gasto = True
 
-        elif escolha == "2":
+        elif escolha == "2":  # --- NOVO SISTEMA DE HABILIDADES ---
+            if not heroi.habilidades:
+                print("Você ainda não aprendeu nenhuma habilidade.")
+                input("\n(Pressione ENTER para voltar à batalha)")
+                continue
+
+            print("\n--- SUAS HABILIDADES ---")
+            for i, hab_nome in enumerate(heroi.habilidades):
+                custo = CATALOGO_HABILIDADES[hab_nome]["custo_mp"]
+                print(f"{i + 1}. {hab_nome} ({custo} MP)")
+            print("0. Voltar")
+
+            hab_escolha = input("\nEscolha a habilidade: ")
+            limpar_tela()
+
+            if hab_escolha.isdigit() and int(hab_escolha) > 0:
+                indice = int(hab_escolha) - 1
+                if 0 <= indice < len(heroi.habilidades):
+                    nome_hab = heroi.habilidades[indice]
+                    detalhes = CATALOGO_HABILIDADES[nome_hab]
+
+                    # Verifica se tem Mana suficiente
+                    if heroi.mana >= detalhes["custo_mp"]:
+                        heroi.mana -= detalhes["custo_mp"]  # Consome o MP
+                        turno_gasto = True
+
+                        # Processa o efeito com base no TIPO da habilidade
+                        if detalhes["tipo"] == "fisico":
+                            # Dano base multiplicado
+                            dano_base = heroi.calcular_ataque()
+                            dano_skill = int(dano_base * detalhes["multiplicador_dano"])
+                            dano_causado = inimigo.receber_dano(dano_skill)
+                            escrever_texto(
+                                f"Você usa {nome_hab}! O impacto brutal causa {dano_causado} de dano!"
+                            )
+
+                        elif detalhes["tipo"] == "magico":
+                            # Magia causa dano direto (ignorando a defesa do inimigo)
+                            dano_skill = detalhes["dano_fixo"]
+                            inimigo.vida -= dano_skill
+                            if inimigo.vida < 0:
+                                inimigo.vida = 0
+                            escrever_texto(
+                                f"Você conjura {nome_hab}! O ataque mágico atinge em cheio causando {dano_skill} de dano direto!"
+                            )
+
+                        elif detalhes["tipo"] == "cura":
+                            # Cura o jogador sem ultrapassar a vida máxima
+                            cura = detalhes["cura"]
+                            vida_anterior = heroi.vida
+                            heroi.vida = min(heroi.vida + cura, heroi.vida_maxima)
+                            vida_recuperada = heroi.vida - vida_anterior
+                            escrever_texto(
+                                f"Você foca sua energia e usa {nome_hab}! Recuperou {vida_recuperada} HP!"
+                            )
+                    else:
+                        print(
+                            f"MP insuficiente! {nome_hab} requer {detalhes['custo_mp']} MP."
+                        )
+                        continue  # Não gasta o turno
+                else:
+                    print("Opção inválida.")
+                    continue
+            else:
+                print("Ação cancelada.")
+                continue
+
+        elif escolha == "3":
             if batalha_tutorial:
                 escrever_texto(
                     "Você tenta correr, mas as paredes estreitas e a escuridão bloqueiam sua fuga!"
@@ -86,7 +156,6 @@ def iniciar_combate(heroi, inimigo, batalha_tutorial=False, emboscada=False):
                 )
                 time.sleep(1)
 
-                # Sorteia um número de 1 a 100. (50% de chance de sucesso por enquanto)
                 chance_fuga = random.randint(1, 100)
 
                 if chance_fuga <= 50:
@@ -94,19 +163,17 @@ def iniciar_combate(heroi, inimigo, batalha_tutorial=False, emboscada=False):
                         "Você consegue despistar a criatura e escapar com vida... desta vez!"
                     )
                     time.sleep(2)
-                    return "fuga"  # Retorna a string de sucesso na fuga
+                    return "fuga"
                 else:
                     escrever_texto(
                         f"O(A) {nome_inimigo_display} é mais rápido e bloqueia sua rota de fuga!"
                     )
-                    turno_gasto = (
-                        True  # A fuga falhou, o turno foi gasto e o inimigo vai atacar!
-                    )
+                    turno_gasto = True
 
-        elif escolha == "3":
+        elif escolha == "4":
             if not heroi.mostrar_inventario():
                 input("\n(Pressione ENTER para voltar à batalha)")
-                continue  # Não gasta o turno se estiver vazio
+                continue
 
             escolha_item = input("\nEscolha o número do item (ou '0' para cancelar): ")
 
@@ -123,7 +190,7 @@ def iniciar_combate(heroi, inimigo, batalha_tutorial=False, emboscada=False):
                 print("Ação cancelada.")
                 continue
 
-        elif escolha == "4":
+        elif escolha == "5":
             print("\n--- SEU STATUS ---")
             print(
                 f"Nome: {heroi.nome} | Level: {heroi.level} ({heroi.xp}/{heroi.xp_necessario} XP)"
@@ -152,8 +219,7 @@ def iniciar_combate(heroi, inimigo, batalha_tutorial=False, emboscada=False):
             input("\n(Pressione ENTER para voltar à batalha)")
             continue
 
-        elif escolha == "5":
-            # Revela os status do inimigo
+        elif escolha == "6":
             inimigo.analisado = True
             print("\n--- ANALISANDO O INIMIGO ---")
             print("Sua visão se ajusta à escuridão e você reconhece a ameaça.")
@@ -163,13 +229,12 @@ def iniciar_combate(heroi, inimigo, batalha_tutorial=False, emboscada=False):
                 f"Força de Ataque: {inimigo.ataque_base} | Defesa: {inimigo.defesa_base}"
             )
             input("\n(Pressione ENTER para voltar à batalha)")
-            continue  # Ação Livre
+            continue
 
         else:
             print("Ação inválida. A tensão atrapalha sua mente.")
             continue
 
-        # Turno do inimigo
         if inimigo.esta_vivo() and turno_gasto:
             time.sleep(1)
             dano_inimigo = inimigo.ataque_base
@@ -179,11 +244,9 @@ def iniciar_combate(heroi, inimigo, batalha_tutorial=False, emboscada=False):
             )
             time.sleep(1)
 
-        # Avança o contador de turnos apenas se o tempo passou de verdade
         if turno_gasto:
             turno += 1
 
-    # Resolução final do combate
     if heroi.esta_vivo():
         escrever_texto(
             f"\nCom um último golpe, o(a) {nome_inimigo_display} se desfaz em uma pilha de ossos."
