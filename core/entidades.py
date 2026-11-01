@@ -33,6 +33,12 @@ class Jogador(Personagem):
         self.dinheiro = {"cobre": 0, "prata": 0, "ouro": 0, "platina": 0}
         self.progresso = {}
 
+        # NOVO: Sistema de XP e Habilidades
+        self.xp = 0
+        self.xp_necessario = 100  # Quanto precisa para o Level 2
+        self.pontos_habilidade = 0
+        self.habilidades = []  # Lista para guardar as skills que vamos criar depois
+
     def equipar_arma(self, nome_arma, bonus_ataque):
         self.arma_equipada = {"nome": nome_arma, "bonus": bonus_ataque}
 
@@ -126,6 +132,33 @@ class Jogador(Personagem):
             return f"Você não pode usar {item['nome']} agora."
         return "Item inválido."
 
+    # NOVO: Função de ganho de XP e subida de nível
+    def ganhar_xp(self, quantidade):
+        self.xp += quantidade
+        mensagens = [f"Você recebeu {quantidade} de XP!"]
+
+        # Usamos 'while' porque o jogador pode ganhar muito XP e upar 2 níveis de uma vez
+        while self.xp >= self.xp_necessario:
+            self.xp -= self.xp_necessario
+            self.level += 1
+            # Aumenta a dificuldade para o próximo nível em 50%
+            self.xp_necessario = int(self.xp_necessario * 1.5)
+
+            # Evolução dos atributos
+            self.vida_maxima += 20
+            self.vida = self.vida_maxima  # Bônus clássico: curar 100% ao upar
+            self.ataque_base += 2
+            self.pontos_habilidade += 1
+
+            mensagens.append(f"\n🌟 PARABÉNS! Você alcançou o Level {self.level}! 🌟")
+            mensagens.append(
+                f"Seu HP Máximo subiu para {self.vida_maxima} e seu Ataque Base para {self.ataque_base}."
+            )
+            mensagens.append("Sua saúde foi totalmente restaurada!")
+            mensagens.append("Você ganhou 1 Ponto de Habilidade (PH)!")
+
+        return mensagens
+
     def to_dict(self):
         return {
             "nome": self.nome,
@@ -139,6 +172,11 @@ class Jogador(Personagem):
             "armadura_equipada": self.armadura_equipada,  # Atualizado para o Save
             "dinheiro": self.dinheiro,
             "progresso": self.progresso,
+            # NOVO: Salvando o progresso de XP
+            "xp": self.xp,
+            "xp_necessario": self.xp_necessario,
+            "pontos_habilidade": self.pontos_habilidade,
+            "habilidades": self.habilidades,
         }
 
     @classmethod
@@ -158,12 +196,19 @@ class Jogador(Personagem):
             "dinheiro", {"cobre": 0, "prata": 0, "ouro": 0, "platina": 0}
         )
         jogador.progresso = data.get("progresso", {})
+        # NOVO: Carregando o progresso de XP
+        jogador.xp = data.get("xp", 0)
+        jogador.xp_necessario = data.get("xp_necessario", 100)
+        jogador.pontos_habilidade = data.get("pontos_habilidade", 0)
+        jogador.habilidades = data.get("habilidades", [])
         return jogador
 
 
 class Inimigo(Personagem):
-    def __init__(self, nome, level, vida_maxima, ataque_base, defesa_base):
-        # O Inimigo é mais simples, pois não precisa de inventário ou equipamento neste momento
+    # NOVO: Adicionamos o xp_recompensa no construtor
+    def __init__(
+        self, nome, level, vida_maxima, ataque_base, defesa_base, xp_recompensa=0
+    ):
         super().__init__(nome, level, vida_maxima, ataque_base, defesa_base)
-        # Flag para controlar se as informações estão ocultas
         self.analisado = False
+        self.xp_recompensa = xp_recompensa

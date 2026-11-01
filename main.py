@@ -23,7 +23,12 @@ def iniciar_jogo():
 
             # 4. Instancia o Inimigo
             esqueleto = Inimigo(
-                nome="Esqueleto", level=1, vida_maxima=50, ataque_base=10, defesa_base=0
+                nome="Esqueleto",
+                level=1,
+                vida_maxima=50,
+                ataque_base=10,
+                defesa_base=0,
+                xp_recompensa=50,
             )
 
             # (O próximo passo será chamar a função de Combate aqui)
@@ -60,7 +65,13 @@ def iniciar_jogo():
                 )
                 heroi.adicionar_dinheiro("cobre", 15)  # Adiciona 15 PC à carteira
 
+                # NOVO: Imprime o que recebeu e distribui XP
                 print("\nVocê adquiriu [1 Poção de Cura] e [15 Peças de Cobre]!")
+
+                mensagens_xp = heroi.ganhar_xp(esqueleto.xp_recompensa)
+                for msg in mensagens_xp:
+                    print(f"{msg}")
+
                 input("\n(Pressione ENTER para continuar a exploração...)")
 
                 # --- CHAMA O NOVO MOTOR DE EXPLORAÇÃO ---

@@ -1,4 +1,5 @@
 import time
+import random
 from core.utils import escrever_texto
 from core.menu import limpar_tela
 from core.save import salvar_jogo
@@ -40,7 +41,10 @@ def menu_personagem_livre(heroi, sala_atual):
         elif escolha == "2":
             limpar_tela()
             print("\n--- SEU STATUS ---")
-            print(f"Nome: {heroi.nome} | Level: {heroi.level}")
+            print(
+                f"Nome: {heroi.nome} | Level: {heroi.level} ({heroi.xp}/{heroi.xp_necessario} XP)"
+            )  # <-- ATUALIZADO
+            print(f"Pontos de Habilidade: {heroi.pontos_habilidade}")  # <-- NOVO
             print(f"HP: {heroi.vida}/{heroi.vida_maxima}")
             # Correção: Agora usa calcular_defesa()
             print(
@@ -69,7 +73,7 @@ def menu_personagem_livre(heroi, sala_atual):
             limpar_tela()
             escrever_texto("Salvando o jogo...")
             salvar_jogo(heroi, sala_atual)
-            print("\n[SISTEMA]: Jogo salvo com sucesso!")
+            print("\nJogo salvo com sucesso!")
             input("\n(Pressione ENTER para voltar)")
 
         elif escolha == "4":
@@ -304,7 +308,12 @@ def cena_salao_alagado(heroi):
 
         # Instancia um inimigo mais forte e chama a função de combate
         guardiao = Inimigo(
-            "Aberração do Lodo", level=2, vida_maxima=75, ataque_base=12, defesa_base=2
+            "Aberração do Lodo",
+            level=2,
+            vida_maxima=75,
+            ataque_base=12,
+            defesa_base=2,
+            xp_recompensa=70,
         )
         resultado = iniciar_combate(
             heroi, guardiao, batalha_tutorial=True
@@ -329,6 +338,10 @@ def cena_salao_alagado(heroi):
             )
             heroi.adicionar_dinheiro("cobre", 20)
             heroi.progresso["guardiao_morto"] = True
+
+            mensagens_xp = heroi.ganhar_xp(guardiao.xp_recompensa)
+            for msg in mensagens_xp:
+                print(f"{msg}")
 
             input("\n(Pressione ENTER para prosseguir para o fundo do salão...)")
         else:
@@ -539,10 +552,10 @@ def cena_floresta_inicio(heroi):
         elif escolha == "3":
             limpar_tela()
             escrever_texto(
-                "Você aperta o passo pela trilha de terra escura, entrando na parte densa da floresta..."
+                "Você se afasta do acampamento e entra na escuridão da trilha principal..."
             )
-            input("\n[Fim da Atualização - Pressione ENTER para voltar]")
-            return "fim_de_jogo"
+            time.sleep(1)
+            return "trilha_lobos"  # AGORA APONTA PARA A NOVA CENA!
 
         elif escolha == "4":
             menu_personagem_livre(heroi, "floresta_inicio")
@@ -550,6 +563,175 @@ def cena_floresta_inicio(heroi):
         else:
             print("\nOpção inválida.")
             time.sleep(1)
+
+
+def cena_trilha_lobos(heroi):
+    # Inicializa o progresso para saber se o obstáculo já foi superado
+    if "lobo_derrotado" not in heroi.progresso:
+        heroi.progresso["lobo_derrotado"] = False
+
+    while True:
+        limpar_tela()
+        print("\n" + "=" * 45)
+        print("          TRILHA PARA O FAROL - A PATRULHA         ")
+        print("=" * 45)
+
+        # Se o lobo já foi derrotado (ou despistado)
+        if heroi.progresso["lobo_derrotado"]:
+            escrever_texto("O caminho de terra escura está silencioso.")
+            escrever_texto("A silhueta do Farol parece um pouco mais próxima agora.")
+            print("=" * 45)
+            print("1. Continuar a jornada em direção ao Farol")
+            print("2. Voltar para o Acampamento")
+            print("3. Menu do Personagem")
+            print("=" * 45)
+
+            escolha = input("\nO que você faz?: ")
+
+            if escolha == "1":
+                limpar_tela()
+                escrever_texto(
+                    "Você segue pela trilha, adentrando ainda mais os mistérios da floresta..."
+                )
+                input("\n[Fim da Atualização 1.1 - Pressione ENTER para voltar]")
+                return "fim_de_jogo"
+            elif escolha == "2":
+                return "floresta_inicio"
+            elif escolha == "3":
+                menu_personagem_livre(heroi, "trilha_lobos")
+            else:
+                print("\nOpção inválida.")
+                time.sleep(1)
+
+        # Se for a primeira vez encontrando o lobo
+        else:
+            escrever_texto(
+                "Você avança sorrateiramente pela trilha. Um rosnado gutural corta o silêncio."
+            )
+            escrever_texto("À frente, dois olhos vermelhos brilham na escuridão.")
+            escrever_texto(
+                "É um [Lobo Corrompido] patrulhando a área. Ele ainda não notou sua presença."
+            )
+            print("=" * 45)
+            print(
+                "1. Tentar passar furtivamente pelas sombras (50% de chance de sucesso)"
+            )
+            print("2. Armar uma emboscada e atacar primeiro (Garante um ataque extra)")
+            print("3. Recuar furtivamente para o Acampamento")
+            print("4. Menu do Personagem")
+            print("=" * 45)
+
+            escolha = input("\nO que você faz?: ")
+
+            if escolha == "1":
+                limpar_tela()
+                escrever_texto(
+                    "Você prende a respiração e pisa suavemente entre as folhas secas..."
+                )
+                time.sleep(2)
+
+                # RNG: Sorteia um número de 1 a 100. Se for <= 50, é sucesso.
+                chance = random.randint(1, 100)
+
+                if chance <= 50:
+                    escrever_texto(
+                        "\nSUCESSO! Você desliza pelas sombras como um fantasma."
+                    )
+                    escrever_texto(
+                        "A fera não percebe nada, e você deixa o perigo para trás."
+                    )
+                    heroi.progresso["lobo_derrotado"] = True
+                    input("\n(Pressione ENTER para continuar)")
+                else:
+                    escrever_texto("\n*CRACK*... Você pisa em um galho seco!")
+                    escrever_texto(
+                        "O Lobo Corrompido se vira e avança violentamente na sua direção!"
+                    )
+                    input("\n(Pressione ENTER para se defender!)")
+
+                    lobo = Inimigo(
+                        "Lobo Corrompido",
+                        level=2,
+                        vida_maxima=55,
+                        ataque_base=14,
+                        defesa_base=1,
+                        xp_recompensa=40,
+                    )
+                    resultado = iniciar_combate(
+                        heroi, lobo
+                    )  # Combate normal, você perdeu a surpresa
+
+                    if resultado == "vitoria":
+                        resolver_vitoria_lobo(heroi, lobo)
+                    elif resultado == "fuga":  # <-- NOVO TRATAMENTO DE FUGA
+                        limpar_tela()
+                        escrever_texto(
+                            "Você corre de volta para a segurança do Acampamento com o coração acelerado."
+                        )
+                        time.sleep(2)
+                        return "floresta_inicio"  # Retorna o jogador para a área segura
+                    else:
+                        return "derrota"
+
+            elif escolha == "2":
+                limpar_tela()
+                escrever_texto(
+                    "Você saca sua arma e aguarda o momento perfeito no matagal..."
+                )
+                input("\n(Pressione ENTER para saltar sobre a fera!)")
+
+                lobo = Inimigo(
+                    "Lobo Corrompido",
+                    level=2,
+                    vida_maxima=55,
+                    ataque_base=14,
+                    defesa_base=1,
+                    xp_recompensa=40,
+                )
+                # Chama o combate passando emboscada=True
+                resultado = iniciar_combate(heroi, lobo, emboscada=True)
+
+                if resultado == "vitoria":
+                    resolver_vitoria_lobo(heroi, lobo)
+                elif resultado == "fuga":  # <-- NOVO TRATAMENTO DE FUGA
+                    limpar_tela()
+                    escrever_texto(
+                        "Você abandona a luta e recua correndo para a beirada da floresta."
+                    )
+                    time.sleep(2)
+                    return "floresta_inicio"  # Retorna o jogador para a área segura
+                else:
+                    return "derrota"
+
+            elif escolha == "3":
+                return "floresta_inicio"
+
+            elif escolha == "4":
+                menu_personagem_livre(heroi, "trilha_lobos")
+            else:
+                print("\nOpção inválida.")
+                time.sleep(1)
+
+
+def resolver_vitoria_lobo(heroi, inimigo_derrotado):
+    """Função auxiliar para entregar o loot se o jogador vencer o lobo."""
+    limpar_tela()
+    escrever_texto("A fera demoníaca cai inerte no chão, dissipando uma fumaça negra.")
+    time.sleep(1)
+    escrever_texto(
+        "\nVasculhando os restos mortais, você encontra [1 Dente de Lobo] e [10 Peças de Cobre]."
+    )
+
+    heroi.inventario.append({"nome": "Dente de Lobo", "tipo": "material", "valor": 0})
+    heroi.adicionar_dinheiro("cobre", 10)
+    heroi.progresso["lobo_derrotado"] = True
+
+    # Entrega o XP do lobo
+    mensagens_xp = heroi.ganhar_xp(inimigo_derrotado.xp_recompensa)
+    for msg in mensagens_xp:
+        print(f"{msg}")
+
+    input("\n(Pressione ENTER para continuar a exploração...)")
 
 
 def iniciar_exploracao(heroi, sala_inicial="bifurcacao"):
@@ -579,9 +761,12 @@ def iniciar_exploracao(heroi, sala_inicial="bifurcacao"):
         elif sala_atual == "floresta_inicio":
             sala_atual = cena_floresta_inicio(heroi)
 
-        # NOVO: Conexão para a máquina de estados reconhecer o acampamento
         elif sala_atual == "acampamento":
             sala_atual = cena_acampamento(heroi)
+
+        # NOVO: Conexão para a trilha
+        elif sala_atual == "trilha_lobos":
+            sala_atual = cena_trilha_lobos(heroi)
 
         elif sala_atual == "derrota" or sala_atual == "fim_de_jogo":
             break

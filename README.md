@@ -7,10 +7,12 @@
 - Menu principal para iniciar uma partida, carregar um jogo salvo ou sair.
 - Combate por turnos com ataque, fuga quando permitida, uso de itens, consulta de status e análise de oponentes.
 - Personagem com pontos de vida, ataque, defesa, equipamento, inventário e moedas.
+- Progressão por experiência: derrotar inimigos concede XP e pode aumentar o nível, os atributos e os pontos de habilidade.
 - Itens de cura utilizáveis durante a exploração e os combates.
-- Exploração com salas conectadas, escolhas de caminho e eventos opcionais.
+- Exploração com caminhos alternativos, eventos, masmorra, floresta, acampamento seguro e mercador.
+- Encontros com furtividade, emboscadas, combate e chance de fuga.
 - Sistema de loja para comprar itens e equipamentos e negociar itens do inventário.
-- Salvamento e carregamento local do progresso, incluindo os dados do personagem e a posição atual.
+- Salvamento e carregamento local do progresso, incluindo dados do personagem, progressão e posição atual.
 
 ## Como executar
 

@@ -1,16 +1,34 @@
 import time
+import random  # <-- NOVA IMPORTAÇÃO
 from core.utils import escrever_texto
 from core.menu import limpar_tela
 
 
-def iniciar_combate(heroi, inimigo, batalha_tutorial=False):
+def iniciar_combate(heroi, inimigo, batalha_tutorial=False, emboscada=False):
     limpar_tela()
 
     nome_inimigo_display = inimigo.nome if inimigo.analisado else "Figura Sombria"
-    escrever_texto(
-        f"Um(a) {nome_inimigo_display} surge das sombras e bloqueia o seu caminho!",
-        0.03,
-    )
+
+    # NOVO: Lógica de Ataque Surpresa
+    if emboscada:
+        escrever_texto(
+            f"Você salta das sombras e embosca o(a) {nome_inimigo_display}!", 0.03
+        )
+        dano_emboscada = heroi.calcular_ataque()
+        dano_causado = inimigo.receber_dano(dano_emboscada)
+        arma_nome = (
+            heroi.arma_equipada["nome"] if heroi.arma_equipada else "mãos livres"
+        )
+        escrever_texto(
+            f"Seu ataque surpresa com a {arma_nome} causa {dano_causado} de dano imediato!",
+            0.03,
+        )
+        time.sleep(1)
+    else:
+        escrever_texto(
+            f"Um(a) {nome_inimigo_display} surge das sombras e bloqueia o seu caminho!",
+            0.03,
+        )
 
     turno = 1  # Inicializador do contador de turnos
 
@@ -61,10 +79,29 @@ def iniciar_combate(heroi, inimigo, batalha_tutorial=False):
                 escrever_texto(
                     "Esta é uma luta pela sobrevivência. Fugir não é uma opção!"
                 )
-                turno_gasto = True  # Gastou o turno falhando em fugir
+                turno_gasto = True
             else:
-                escrever_texto("Você consegue escapar com vida... desta vez.")
-                return "fuga"
+                escrever_texto(
+                    "Você dá as costas para o perigo e tenta correr desesperadamente..."
+                )
+                time.sleep(1)
+
+                # Sorteia um número de 1 a 100. (50% de chance de sucesso por enquanto)
+                chance_fuga = random.randint(1, 100)
+
+                if chance_fuga <= 50:
+                    escrever_texto(
+                        "Você consegue despistar a criatura e escapar com vida... desta vez!"
+                    )
+                    time.sleep(2)
+                    return "fuga"  # Retorna a string de sucesso na fuga
+                else:
+                    escrever_texto(
+                        f"O(A) {nome_inimigo_display} é mais rápido e bloqueia sua rota de fuga!"
+                    )
+                    turno_gasto = (
+                        True  # A fuga falhou, o turno foi gasto e o inimigo vai atacar!
+                    )
 
         elif escolha == "3":
             if not heroi.mostrar_inventario():
@@ -88,7 +125,10 @@ def iniciar_combate(heroi, inimigo, batalha_tutorial=False):
 
         elif escolha == "4":
             print("\n--- SEU STATUS ---")
-            print(f"Nome: {heroi.nome} | Level: {heroi.level}")
+            print(
+                f"Nome: {heroi.nome} | Level: {heroi.level} ({heroi.xp}/{heroi.xp_necessario} XP)"
+            )  # <-- ATUALIZADO
+            print(f"Pontos de Habilidade: {heroi.pontos_habilidade}")  # <-- NOVO
             print(f"HP: {heroi.vida}/{heroi.vida_maxima}")
             print(
                 f"Ataque Total: {heroi.calcular_ataque()} | Defesa: {heroi.calcular_defesa()}"
